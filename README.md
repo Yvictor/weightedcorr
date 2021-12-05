@@ -1,7 +1,6 @@
 # WeightedCorr
 Weighted correlation in Python. Pandas based implementation of weighted Pearson and Spearman correlations.
 
-I thought it was strange that I couldn't easily find a way to get both these weighted correlations with a single class/function in Python. So I made it myself.
 
 # v2.1 20-03-2021
 
@@ -19,9 +18,18 @@ Switched from a `pandas` backend to a `numpy`/`scipy` backend. Usage remains the
 | 10000  | 350 ms ± 4.56 ms  | **343 ms** ± 5.41 ms | 746 ms ± 5.29 ms | **350 ms** ± 7.42 ms |
 | 100000  | 3.48 s ± 11.9 ms  | **3.48 s** ± 6.44 ms | 7.44 s ± 20.1 ms | **3.52 s** ± 9.27 ms |
 
+## Install
+``` bash
+pip install wcorr
+```
+
 ## Usage
 
 This class can be used in a few different ways depending on your needs. The data should be passed to the initialization of the class. Then calling the class will produce the result with desired method (pearson is the default). Note that the method should be passed to the call, not the initialization. The examples below will result in pearson, pearson, and spearman correlations.
+
+``` python
+from wcorr import WeightedCorr
+```
 
 1. You can supply a pandas DataFrame with x, y, and w columns (columns should be in that order). The output will be a single floating point value.
 ```

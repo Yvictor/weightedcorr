@@ -3,7 +3,7 @@ import pandas as pd
 from scipy.stats import rankdata
 
 class WeightedCorr:
-    def __init__(self, xyw=None, x=None, y=None, w=None, df=None, wcol=None):
+    def __init__(self, x=None, y=None, w=None, xyw=None, df=None, wcol=None):
         ''' Weighted Correlation class. Either supply xyw, (x, y, w), or (df, wcol). Call the class to get the result, i.e.:
         WeightedCorr(xyw=mydata[[x, y, w]])(method='pearson')
         :param xyw: pd.DataFrame with shape(n, 3) containing x, y, and w columns (column names irrelevant)
@@ -16,8 +16,12 @@ class WeightedCorr:
         if (df is None) and (wcol is None):
             if np.all([i is None for i in [xyw, x, y, w]]):
                 raise ValueError('No data supplied')
-            if not ((isinstance(xyw, pd.DataFrame)) != (np.all([isinstance(i, pd.Series) for i in [x, y, w]]))):
+            if isinstance(w, int):
+                w = [w] * len(x)
+            if not ((isinstance(xyw, pd.DataFrame)) != (np.all([isinstance(i, (pd.Series, np.ndarray, list)) for i in [x, y, w]]))):
                 raise TypeError('xyw should be a pd.DataFrame, or x, y, w should be pd.Series')
+            if isinstance(x, np.ndarray) or isinstance(x, list):
+                x, y, w = pd.Series(x), pd.Series(y), pd.Series(w)
             xyw = pd.concat([x, y, w], axis=1).dropna() if xyw is None else xyw.dropna()
             self.x, self.y, self.w = (pd.to_numeric(xyw[i], errors='coerce').values for i in xyw.columns)
             self.df = None
@@ -47,6 +51,12 @@ class WeightedCorr:
     def _spearman(self, x=None, y=None):
         x, y = (self.x, self.y) if ((x is None) and (y is None)) else (x, y)
         return self._pearson(self._wrank(x), self._wrank(y))
+
+    def spearman(self):
+        return self._spearman()
+    
+    def pearson(self):
+        return self._pearson()
 
     def __call__(self, method='pearson'):
         '''
