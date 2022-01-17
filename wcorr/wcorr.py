@@ -2,6 +2,21 @@ import numpy as np
 import pandas as pd
 from scipy.stats import rankdata
 
+def wcov(x, y, w, ms):
+    return np.sum(w * (x - ms[0]) * (y - ms[1]))
+
+def wrank(x, w):
+    (unique, arr_inv, counts) = np.unique(rankdata(x), return_counts=True, return_inverse=True)
+    a = np.bincount(arr_inv, w)
+    return (np.cumsum(a) - a)[arr_inv]+((counts + 1)/2 * (a/counts))[arr_inv]
+
+def wpearson(x, y, w):
+    mx, my = (np.sum(i * w) / np.sum(w) for i in [x, y])
+    return wcov(x, y, w, [mx, my]) / np.sqrt(wcov(x, x, w, [mx, mx]) * wcov(y, y, w, [my, my]))
+
+def wspearman(x, y, w):
+    return wpearson(wrank(x, w), wrank(y, w), w)
+
 class WeightedCorr:
     def __init__(self, x=None, y=None, w=None, xyw=None, df=None, wcol=None):
         ''' Weighted Correlation class. Either supply xyw, (x, y, w), or (df, wcol). Call the class to get the result, i.e.:
